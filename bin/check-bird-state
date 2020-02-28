@@ -1,0 +1,7 @@
+#!/bin/bash
+
+BIRD_STATE=$(birdc${1} show protocols all bgp1 | awk '/BGP state:.*/{print "State: ",$NF}; /.*Last error:.*/{printf "Error: "; for(i=3; i<=NF; ++i) printf "%s ", $i; print ""}; /.*Routes:.*/{ print "Routes:"; print "  Imported: ", $2; print "  Exported: ", $4}')
+
+echo $BIRD_STATE|grep -qs Error && echo "Bird reported error" && echo "$BIRD_STATE" && exit 2
+echo $BIRD_STATE|grep -qs "Exported:  0" && echo "Bird not exporting any routes" && echo "$BIRD_STATE" && exit 2
+echo "$BIRD_STATE" && exit 0
